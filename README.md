@@ -1,1 +1,2 @@
-placeholder 
+# Bongbot, A Discord Application
+
