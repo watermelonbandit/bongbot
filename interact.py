@@ -37,7 +37,7 @@ async def highestbongs(interaction, guild_id):
 
         print(avatar_user)
 
-        if avatar_user.avatar:
+        if avatar_user and avatar_user.avatar:
             leaderboard_embed.set_thumbnail(url=avatar_user.avatar.url)
         
         for rank, (user_id, score) in enumerate(top_10, start=1):
@@ -105,7 +105,7 @@ async def fastesttimes(interaction, guild_id):
         avatar_id = fastest_times[0][0]
         avatar_user = interaction.guild.get_member(int(avatar_id))
 
-        if avatar_user.avatar:
+        if avatar_user and avatar_user.avatar:
             embed.set_thumbnail(url=avatar_user.avatar.url)
 
         for i, (member_id, reaction_time) in enumerate(fastest_times[:10], start=1):
