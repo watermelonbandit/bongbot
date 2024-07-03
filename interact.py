@@ -28,7 +28,11 @@ async def highestbongs(interaction, guild_id):
 
         print(leaderboard1)
                         
-        sorted_leaderboard = sorted(leaderboard1.items(), key=lambda x: (x[1].get('time_69_bongs', float('inf')), -x[1]['bongs']), reverse=False)
+        sorted_leaderboard = sorted(
+            leaderboard1.items(),
+            key=lambda x: (x[1]['time_69_bongs'] if x[1]['time_69_bongs'] is not None else float('inf'), -x[1]['bongs']),
+            reverse=False
+        )
 
         print(sorted_leaderboard)
         top_10 = sorted_leaderboard[:10]  # Get the top 10 leaders
@@ -66,6 +70,7 @@ async def highestbongs(interaction, guild_id):
             if time_69_bongs:
                 timestamp = datetime.fromtimestamp(int(time_69_bongs))
                 bong_timestamp = "Time: " + f"**{timestamp.strftime('%Y-%m-%d %H:%M:%S')}**"
+                print(bong_timestamp)
             else:
                 bong_timestamp = ""
 
@@ -98,7 +103,7 @@ async def fastesttimes(interaction, guild_id):
         
         fastest_times = [(member, data['reaction_time']) for member, data in leaderboard.items() if 'reaction_time' in data]
         
-        fastest_times.sort(key=lambda x: x[1]) 
+        fastest_times.sort(key=lambda x: x[1])  # Sort by reaction time
 
         print(fastesttimes)
    
@@ -138,6 +143,8 @@ async def b(guild_id, interaction, member: discord.Member = None):
 
     blacklist = await database.get_server_blacklist(guild_id)
 
+    #none for now, databse restructuring needed
+
     if not member:
         member = interaction.user
     
@@ -172,7 +179,22 @@ async def b(guild_id, interaction, member: discord.Member = None):
                             f"{reaction_time_str}\n",
                 color=discord.Color.blue()
             )
-            
+
+            if 'hasBeenOveridden' in leaderboard[member_id]:
+                overide_author = leaderboard[member_id]["overiddenBy"]
+                overide_member = interaction.guild.get_member(int(overide_author))
+                reason = leaderboard[member_id]["overideReason"]
+                time1 = leaderboard[member_id]["overideTime"]
+
+                time2 = datetime.fromtimestamp(int(time1))
+
+                time3 = time2.strftime(f"%#I:%M:%S %p")
+
+                actual_date=time2.strftime("%a, %b %d")
+
+                time = await interface.embed_footer_format(interaction.guild)
+
+                embed.set_footer(text=f"This users score was manually changed by {overide_member}\nReason: {reason} \nLast Override: {actual_date} at {time3} {time[4]}")
 
             if member.avatar:
                 embed.set_thumbnail(url=member.avatar.url)

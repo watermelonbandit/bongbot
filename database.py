@@ -151,8 +151,13 @@ async def get_server_data(guild_id):
             user_bong_data_dict[member_id] = {
                 "bongs": data.get("bongs"),
                 "reaction_time": data.get("reaction_time"),
-                "golden_bongs": data.get("golden_bongs")
+                "golden_bongs": data.get("golden_bongs"),
+                "time_69_bongs": data.get("time_69_bongs")
             }
+
+            if user_bong_data_dict[member_id]['time_69_bongs']:
+                print(user_bong_data_dict[member_id]['time_69_bongs'])
+    
     
     return user_bong_data_dict
 
