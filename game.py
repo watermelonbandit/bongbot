@@ -303,7 +303,7 @@ async def announce_winner(guild_id, channel, member, reaction_time, goldenbong=N
 
 
 
-async def check_early_bong_reactions(bot, bong_message_id, bong_channel_id, guild_id, leaderboard):
+async def check_early_bong_reactions(bot, bong_message_id, bong_channel_id, guild_id):
 
     guild = bot.get_guild(guild_id)
     bong_channel = guild.get_channel(bong_channel_id)
@@ -329,7 +329,7 @@ async def check_early_bong_reactions(bot, bong_message_id, bong_channel_id, guil
                     )
                 await bong_message.delete()
                 print("4")
-                await bong_channel.send(f"{user.mention} has clicked the bong EARLY. Shame them! Their score is now 0")
+                await bong_channel.send(f"{user.mention} has clicked the bong EARLY. Shame them!")
 
 
                
