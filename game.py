@@ -309,16 +309,13 @@ async def check_early_bong_reactions(bot, bong_message_id, bong_channel_id, guil
     bong_channel = guild.get_channel(bong_channel_id)
 
     if preperiod == True:
-        print("1")
         if bong_message_id:
             try:
                 bong_message = await bong_channel.fetch_message(bong_message_id)
-                print("2")
             except:
                 return
             
             bot_reaction = discord.utils.get(bong_message.reactions, emoji=bong_emoji, me=True)
-            print("3")
             if bot_reaction and bot_reaction.count > 1:
                 return
             try:
@@ -328,11 +325,7 @@ async def check_early_bong_reactions(bot, bong_message_id, bong_channel_id, guil
                     timeout=10,
                     )
                 await bong_message.delete()
-                print("4")
                 await bong_channel.send(f"{user.mention} has clicked the bong EARLY. Shame them!")
-
-
-               
                 return
 
             except asyncio.TimeoutError:
