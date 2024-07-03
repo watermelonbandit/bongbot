@@ -16,15 +16,14 @@ fake_clock_emojis = ['🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '�
 april_fools_mode= False 
 debug_mode= False
 season = "Pre - 1"
+bong_goal = 100
 
 async def bong(bot, time_keeper_role, guild_id, channel_id, current_ending):
     current_time = datetime.now().strftime("%H:%M")
     preperiod_triggered = False
     
     if current_time.endswith(current_ending) or debug_mode == True:
-        
         blacklist = await database.get_server_blacklist(guild_id)
-
         print(f"Bong for guild: {guild_id}")
         
         guild = bot.get_guild(guild_id)
@@ -36,7 +35,6 @@ async def bong(bot, time_keeper_role, guild_id, channel_id, current_ending):
         try:
             bong_message = await channel.send("Bong")
             bong_message_id = bong_message.id
-            print("got here")
             loop = tasks.loop(count=1)(check_early_bong_reactions)
             loop.start(bot, bong_message_id, int(channel_id), int(guild_id))
 
@@ -68,72 +66,7 @@ async def bong(bot, time_keeper_role, guild_id, channel_id, current_ending):
                 await bong_message.delete()
                 reaction_time = tsr - timestartreaction
                 timestartreaction = 0
-                print(f"{user} got the bong!")
-                #bot_member=bong_message.author
-
-                if april_fools_mode == True:
-                    first_number = random.randint(0,20)
-                    second_number = random.randint(0,20)
-                    operators = ["+", "-","*"]
-                    operator_functions = {
-                        '+': lambda a, b: a + b, 
-                        '-': lambda a, b: a - b,
-                        '*': lambda a, b: a * b, 
-                        '/': lambda a, b: a / b,
-                    }
-
-                    operator = random.choice(operators)
-                    answer = operator_functions[operator](first_number, second_number)
-                    rtimerandom = random.randint(5,10)
-                    rtime = int(time.time()) + rtimerandom
-
-                    fact_message = await channel.send(f"{user.mention}, what is **{first_number}** **{operator}** **{second_number}**? You have <t:{rtime}:R>")
-                    
-                    try:
-                        def check(m: discord.Message):
-                            return m.author.id == user.id and m.content == str(answer)
-
-                        response = await bot.wait_for(
-                                'message',
-                                check=check, 
-                                timeout=rtimerandom,
-                                )
-                        
-                        prob = random.randint(0,10)
-
-                        await fact_message.delete()
-                        
-                        if prob == 2:
-                            await channel.send(f"{user.mention}, Congratulations! You've won.........nothing. Everyone point and laugh")
-                            await bot.change_presence(activity=discord.Game('!h to find out info about commands!'))
-                            return
-                        
-                        elif prob == 6:
-                            await channel.send(f"{user.mention}, bird")
-                            await bot.change_presence(activity=discord.Game('!h to find out info about commands!'))
-                            return
-                        
-                        elif prob == 7:
-                            await channel.send(f"{user.mention}, kunth is a bitch. fuck that dude. AHHHHHH")
-                            await bot.change_presence(activity=discord.Game('!h to find out info about commands!'))
-                            return
-                        
-                        elif prob == 9: 
-                            await channel.send(f"{user.mention}, Congratulations! Im going to proceed to slam my head into the keyboard. \n awefhunilo;;aw3e4jikodfrtyh890p;'w2e34g[]")
-                            await bot.change_presence(activity=discord.Game('!h to find out info about commands!'))
-                            return
-                        
-                        else:
-                            await announce_winner(channel,user,reaction_time)
-                            await bot.change_presence(activity=discord.Game('!h to find out info about commands!'))
-                            return
-                    
-                    except asyncio.TimeoutError:
-                        await fact_message.delete()
-                        await channel.send(f"{user.mention}, You are gay")
-                    
-                    return
-                
+                print(f"{user} got the bong in {guild.name}")
                 
                 #if check_blacklist(user) == False:
                 if str(user.id) not in blacklist:
@@ -276,17 +209,17 @@ async def announce_winner(guild_id, channel, member, reaction_time, goldenbong=N
             leaderboard[str(member.id)] = {'bongs': 1, 'reaction_time': reaction_time}
 
         
-        if leaderboard[str(member.id)]['bongs'] == 69:
+        if leaderboard[str(member.id)]['bongs'] == bong_goal:
             timestamp = int(time.time())
             leaderboard[str(member.id)]['time_69_bongs'] = timestamp
             await channel.send(f"{member.mention}, Nice")
     
 
-        #elif leaderboard[str(member.id)]['bongs'] > 69:
-            #leaderboard[str(member.id)]['bongs'] = 0
-            #await channel.send(f"{member.mention} congratulations. You played yourself. Your score has been reset to 0")
-            #await database.update_server_users(guild_id, leaderboard)
-            #return
+        elif leaderboard[str(member.id)]['bongs'] > bong_goal:
+            leaderboard[str(member.id)]['bongs'] = 0
+            await channel.send(f"{member.mention} congratulations. You played yourself. Your score has been reset to 0")
+            await database.update_server_users(guild_id, leaderboard)
+            return
         
         elif goldenbong is not None:
             await channel.send(f"**Golden Bong Alert!** {member.mention} found the Golden Bong in {special_channel.mention}.\n{member.mention} continues the bong with a reaction time of **{str(reaction_time_rounded)}** seconds. They are on a **{str(streak)}** bongs streak!\nPoints added: +**{round(points, 2)}**")
@@ -370,9 +303,8 @@ async def announce_winner(guild_id, channel, member, reaction_time, goldenbong=N
 
 
 
-async def check_early_bong_reactions(bot, bong_message_id, bong_channel_id, guild_id):
+async def check_early_bong_reactions(bot, bong_message_id, bong_channel_id, guild_id, leaderboard):
 
-    print("got here")
     guild = bot.get_guild(guild_id)
     bong_channel = guild.get_channel(bong_channel_id)
 
@@ -398,6 +330,8 @@ async def check_early_bong_reactions(bot, bong_message_id, bong_channel_id, guil
                 await bong_message.delete()
                 print("4")
                 await bong_channel.send(f"{user.mention} has clicked the bong EARLY. Shame them! Their score is now 0")
+
+
                
                 return
 
