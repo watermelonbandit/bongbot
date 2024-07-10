@@ -88,7 +88,7 @@ async def bong(bot, time_keeper_role, guild_id, channel_id, current_ending):
         else:
             return
 
-#goldenbong shit 
+#goldenbong stuff 
 async def golden_bong_message(bot, interaction):
     
     text_channels_list = await database.return_goldenbong_channelist(interaction.guild.id)
