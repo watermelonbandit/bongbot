@@ -127,8 +127,9 @@ class Setup(Modal):
              await interaction.response.send_message(
                   "The Bong Bot Time must be a number between 00-59. See https://bong.bot/setup.html for more info",
                   ephemeral=True
-             )
+            )
              return
+        
         validation_setup = {
             "Bong Channel": await validation.validate(guild, "channel", int(bong_bot_channel_id)),
             "Admin Role": await validation.validate(guild,"role", int(admin_role)),
@@ -144,8 +145,6 @@ class Setup(Modal):
             final_message = hreadvalmessage + combined_reasons + " are incorrect, please check to make sure that the bot has access to these channels/roles. See https://bong.bot/setup.html for more info"
             await interaction.response.send_message(final_message, ephemeral=True)
             return
-
-
 
         golden_bong_random_channels = await validation.golden_bong_channel_list(guild, int(lowest_role))
 
@@ -165,8 +164,6 @@ class Setup(Modal):
                 #ephemeral=True
             #)
             #return
-
-        
         
         await database.server_setup(
             guild_id,
@@ -200,11 +197,11 @@ class Setup(Modal):
 
 async def embed_footer_format(guild):
      
-    version = 3.0
+    version = 4.14
 
     timestamp_format_os = "#"
 
-    version_date = "5/16/2024"
+    version_date = "10/2/2024"
 
     timestamp = datetime.now()
 
