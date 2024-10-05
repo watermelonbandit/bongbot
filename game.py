@@ -14,7 +14,7 @@ import keys
 
 fake_clock_emojis = ['🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛', '🕜', '🕝', '🕞', '🕟', '🕠', '🕡', '🕢', '🕣', '🕤', '🕥', '🕦', '🕧']
 april_fools_mode= False 
-debug_mode= True
+debug_mode= False
 season = "Pre - 1"
 bong_goal = 100
 

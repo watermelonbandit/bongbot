@@ -474,7 +474,6 @@ async def global_bongs(user_id):
     return total_count
 
 async def global_reactiontime(user_id):
-    reaction_time = 0
     for collection_name in await bongbotdatabase.list_collection_names():
         collection = bongbotdatabase[f'{collection_name}']
         documents = collection.find({
@@ -483,16 +482,18 @@ async def global_reactiontime(user_id):
                 {f"user_bong_data_archive.{user_id}":{"$exists": True}}
             ]
         })
-        print("4")
         
         async for doc in documents:
             if doc and 'user_bong_data' in doc and f'{user_id}' in doc['user_bong_data']:
                 reaction_time = doc['user_bong_data'][f'{user_id}']["reaction_time"]
             
             if doc and 'user_bong_data_archive' in doc and f'{user_id}' in doc['user_bong_data_archive']:
-                if reaction_time > doc['user_bong_data_archive'][f'{user_id}']["bongs"]:
-                    reaction_time = doc['user_bong_data_archive'][f'{user_id}']["bongs"]
+                if reaction_time > doc['user_bong_data_archive'][f'{user_id}']["reaction_time"]:
+                    reaction_time = doc['user_bong_data_archive'][f'{user_id}']["reaction_time"]
                 
+    if reaction_time is None:
+        reaction_time = 0
+
     return reaction_time
 
 
