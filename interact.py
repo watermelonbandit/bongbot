@@ -532,11 +532,14 @@ async def guildleaderboard(bot, interaction):
 
 async def global_stats(total_points, fastest_reactiontime):
 
-    embed = discord.Embed(title="**Your Global Stats**", color=discord.Color.orange())
+    embed = discord.Embed(title="**Your Global Stats**", color=discord.Color.random())
 
     embed.add_field(name=f"Lifetime Bongs", value=f"**{total_points} bongs**", inline=False)
-
-    embed.add_field(name=f"Fastest Reaction Time", value=f"**{round(fastest_reactiontime, 2)} seconds**", inline=False)
+    
+    if fastest_reactiontime is not None:
+        embed.add_field(name=f"Fastest Reaction Time", value=f"**{round(fastest_reactiontime, 2)} seconds**", inline=False)
+    else:
+        embed.add_field(name=f"Fastest Reaction Time", value=f"**Not Recorded**", inline=False)
 
     embed.set_footer(text="Want to add your server to the game?\nVist bong.bot for more")
 
