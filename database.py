@@ -486,16 +486,17 @@ async def global_reactiontime(user_id):
         async for doc in documents:
             if doc and 'user_bong_data' in doc and f'{user_id}' in doc['user_bong_data']:
                 reaction_time = doc['user_bong_data'][f'{user_id}']["reaction_time"]
-            
+            else:
+                reaction_time = 9999
+
             if doc and 'user_bong_data_archive' in doc and f'{user_id}' in doc['user_bong_data_archive']:
                 if reaction_time > doc['user_bong_data_archive'][f'{user_id}']["reaction_time"]:
                     reaction_time = doc['user_bong_data_archive'][f'{user_id}']["reaction_time"]
-                
-    if reaction_time is None:
-        reaction_time = 0
-
+    
+    if reaction_time == 9999:
+        reaction_time = None                
+    
     return reaction_time
-
 
 
 
