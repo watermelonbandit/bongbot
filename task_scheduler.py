@@ -42,7 +42,7 @@ async def reboot_guild(interaction, guild_id):
     task_name = f"guild_task_{guild_id}"
             
     
-    print(f"Starting Task for guild {interaction.guild}")
+    print(f"Restarting Starting Task for guild {interaction.guild}")
     loop = tasks.loop(seconds=60)(game.bong)
     loop.start(context, int(time_keeper_role), int(guild_id), int(bong_channel_id), current_time)
     
