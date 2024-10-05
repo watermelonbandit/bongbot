@@ -84,7 +84,6 @@ async def highestbongs(interaction, guild_id):
     time_data = await interface.embed_footer_format(interaction.guild)
 
 
-
     leaderboard_embed.set_footer(text=f"BongBot version {time_data[0]} dev, {time_data[1]}\nRequested on {time_data[2]} at {time_data[3]} {time_data[4]}\n{time_data[5]} - Points: {time_data[6]}")
 
 
@@ -531,3 +530,14 @@ async def guildleaderboard(bot, interaction):
 
 
 
+async def global_stats(total_points, fastest_reactiontime):
+
+    embed = discord.Embed(title="**Your Global Stats**", color=discord.Color.orange())
+
+    embed.add_field(name=f"Lifetime Bongs", value=f"**{total_points} bongs**", inline=False)
+
+    embed.add_field(name=f"Fastest Reaction Time", value=f"**{round(fastest_reactiontime, 2)} seconds**", inline=False)
+
+    embed.set_footer(text="Want to add your server to the game?\nVist bong.bot for more")
+
+    return embed
