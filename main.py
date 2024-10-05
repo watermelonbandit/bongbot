@@ -36,6 +36,8 @@ guild = 1128870689311572109
 async def on_ready():
     print("Starting, Please Wait")
     await asyncio.sleep(5)
+
+
     await bot.tree.sync()
     #check database connect
     print("Connecting To Database")
@@ -93,7 +95,7 @@ async def golden_bong(interaction: discord.Interaction):
     if permission_check == True:
         context = interaction
         rtime = int(time.time()) + 10
-        await interaction.response.send_message(f"Golden Bong starting in <t:{rtime}:R>", ephemeral=True)
+        await interaction.response.send_message(f"Golden Bong starting <t:{rtime}:R>", ephemeral=True)
         await asyncio.sleep(10)
         try:
             await game.golden_bong_message(bot, context)
@@ -110,8 +112,10 @@ async def golden_bong(interaction: discord.Interaction):
     app_commands.Choice(name="remove the user to the blacklist", value="remove"),
 ])
 async def blacklist(interaction: discord.Interaction, operation: app_commands.Choice[str], member: discord.Member, reason: str=None):
-    context = interaction
-    await interact.blacklist(interaction.guild.id, context, operation, member, reason)
+    permission_check = await validation.validate_admin_role_access(interaction, interaction.user)
+    if permission_check == True:
+        context = interaction
+        await interact.blacklist(interaction.guild.id, context, operation, member, reason)
 
 
 #Optional golden bong leaderboard functionality. Could be enabled for all users, admin only by defualt
@@ -131,6 +135,7 @@ async def goldenbongleaderboard(interaction: discord.Interaction):
 @app_commands.checks.has_permissions(administrator=True)
 @bot.tree.command(name="setup", description="setup the bot for your server")
 async def show_setup_modal(interaction: discord.Interaction, golden_bong: bool = False):
+    #interaction.response.send_message("# Welcome to BongBot setup\n## Make sure that developer mode is enabled.\nYou will need the following:\n**BongBot Time**")
     modal = Setup()
     await interaction.response.send_modal(modal)
 
@@ -241,17 +246,39 @@ async def gldb(interaction: discord.Interaction):
         #else:
             #await interaction.response.send_message(embed=embed)
         await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="bongstats", description="See all of your bong stats across all servers")
+@app_commands.allowed_installs(guilds=False, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def myusercommand(interaction: discord.Interaction) -> None:
+    try:
+        total_bongs = await database.global_bongs(int(interaction.user.id))
+
+        fastest_reaction_time = await database.global_reactiontime(int(interaction.user.id))
+        
+        embed=await interact.global_stats(total_bongs, fastest_reaction_time)
+
+        await interaction.response.send_message(embed=embed)
     
+    except Exception as e:
+        print (e)
         
 #adminstration on my end
 
-@bot.tree.command(name="newseaon", description="initate a new season. Bong Master Only",guild=discord.Object(id=1128870689311572109))
+@bot.tree.command(name="newseason", description="no touchies")
 async def newseason(interaction: discord.Interaction):
     try:
-        await interaction.response.send_message("Starting new season migration.")
-        await task_scheduler.stop_all_tasks(interaction, "New Season")
+        if interaction.user.id == 297243048255946752:
+            await interaction.response.send_message("Starting new season migration.")
+            await task_scheduler.stop_all_tasks(interaction, "New Season")
+        else:
+            await interaction.response.send_message("I SAID NO TOUCHIES")
     except Exception as e:
         print(e)
+
+
+
+
 
 
 #error handling
