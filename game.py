@@ -14,7 +14,7 @@ import keys
 
 fake_clock_emojis = ['🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛', '🕜', '🕝', '🕞', '🕟', '🕠', '🕡', '🕢', '🕣', '🕤', '🕥', '🕦', '🕧']
 april_fools_mode= False 
-debug_mode= False
+debug_mode= True
 season = "Pre - 1"
 bong_goal = 100
 
@@ -33,14 +33,15 @@ async def bong(bot, time_keeper_role, guild_id, channel_id, current_ending):
         global preperiod
         preperiod = True
         try:
+            fakeclocks = random.randint(0,4)
+            sleepytime= random.randint(2,4)
+            total_anti_cheat_checktime = fakeclocks * sleepytime
+           
             bong_message = await channel.send("Bong")
             bong_message_id = bong_message.id
             loop = tasks.loop(count=1)(check_early_bong_reactions)
-            loop.start(bot, bong_message_id, int(channel_id), int(guild_id))
+            loop.start(bot, bong_message_id, int(channel_id), int(guild_id), total_anti_cheat_checktime)
 
-            fakeclocks = random.randint(0,4)
-            sleepytime= random.randint(2,4)
-        
             for c in range(fakeclocks):
                 await bong_message.add_reaction(random.choice(fake_clock_emojis))
                 await asyncio.sleep(sleepytime)
@@ -48,7 +49,7 @@ async def bong(bot, time_keeper_role, guild_id, channel_id, current_ending):
             return
 
         preperiod = False
-        loop.cancel()
+        loop.stop()
         if preperiod_triggered == False:
             await bong_message.add_reaction(bong_emoji)
             timestartreaction = time.perf_counter()
@@ -63,7 +64,12 @@ async def bong(bot, time_keeper_role, guild_id, channel_id, current_ending):
                     )
 
                 tsr = time.perf_counter()
-                await bong_message.delete()
+                try:
+                    await bong_message.delete()
+                except:
+                    print("Anti Cheat activated, exiting bong function")
+                    return
+                
                 reaction_time = tsr - timestartreaction
                 timestartreaction = 0
                 print(f"{user} got the bong in {guild.name}")
@@ -74,9 +80,7 @@ async def bong(bot, time_keeper_role, guild_id, channel_id, current_ending):
                     
                 else:
                     await channel.send(f"{user.mention} has been blacklisted.")
-                    
-            
-            
+
             except asyncio.TimeoutError:
                 await bong_message.delete()
                 print("No one got the bong")
@@ -87,7 +91,8 @@ async def bong(bot, time_keeper_role, guild_id, channel_id, current_ending):
 
         else:
             return
-
+        
+    
 #goldenbong stuff 
 async def golden_bong_message(bot, interaction):
     
@@ -112,7 +117,7 @@ async def golden_bong_message(bot, interaction):
         interaction.response.send_message("I couldnt find a bong channel, please check to make sure that your guild is configured correctly. see HELP PAGE for more.")
     
     if random_channel is None or text_channels_list == "Not Here":
-        interaction.response.send_message("Hmm, appears to be a issue with your configuration, double check to make sure that your guild configuration is correct, or try again later")
+        interaction.response.send_message("Hmm, there appears to be a issue with your configuration, double check to make sure that your guild configuration is correct, or try again later")
         return
     
     channel = interaction.guild.get_channel(int(random_channel))
@@ -138,7 +143,11 @@ async def golden_bong_message(bot, interaction):
             timestartreaction = 0 
             goldenbong=True
 
-            if str(user.id) not in blacklist:
+            if user.id == interaction.user.id:
+                await og_channel.send(f"Anti Corruption Activated: {user.mention} cannot call the command and get the golden bong! Nice try.")
+                return
+
+            elif str(user.id) not in blacklist:
                 await announce_winner(interaction.guild.id, og_channel, user, reaction_time, goldenbong, channel)
                 await asyncio.sleep(5)
                 await golden_bong(interaction, channel, user)
@@ -185,6 +194,7 @@ async def announce_winner(guild_id, channel, member, reaction_time, goldenbong=N
     leaderboard = await database.get_server_data(guild_id)
     streak = await database.get_streak(guild_id)
     time_keeper_role_id = await database.get_time_keeper_role(guild_id)
+    #bong_goal = await database.get_bong_goal(guild_id)
     reaction_time_rounded = round((reaction_time),2)
 
     if time_keeper_role_id in [role.id for role in member.roles]:
@@ -272,14 +282,14 @@ async def announce_winner(guild_id, channel, member, reaction_time, goldenbong=N
         else:
             leaderboard[str(member.id)] = {'bongs': 1, 'reaction_time': reaction_time}
 
-        if leaderboard[str(member.id)]['bongs'] == 69:
+        if leaderboard[str(member.id)]['bongs'] == bong_goal:
             timestamp = int(time.time())
             leaderboard[str(member.id)]['time_69_bongs'] = timestamp
             await channel.send(f"{member.mention}, Nice")
             
-        #elif leaderboard[str(member.id)]['bongs'] > 69:
-            #leaderboard[str(member.id)]['bongs'] = 0
-            #await channel.send(f"{member.mention} congratulations. You played yourself. Your score has been reset to 0")
+        elif leaderboard[str(member.id)]['bongs'] > bong_goal:
+            leaderboard[str(member.id)]['bongs'] = 0
+            await channel.send(f"{member.mention} congratulations. You played yourself. Your score has been reset to 0")
 
         elif goldenbong is not None:
             await channel.send(f"Golden Bong Alert! {member.mention} found the Golden Bong in {special_channel.mention}!\nCongratulations {member.mention}! **{member.display_name}** got the bong and took **{str(reaction_time_rounded)}** seconds to react.\nPoints added: +**{round(points, 2)}**")
@@ -303,8 +313,7 @@ async def announce_winner(guild_id, channel, member, reaction_time, goldenbong=N
 
 
 
-async def check_early_bong_reactions(bot, bong_message_id, bong_channel_id, guild_id):
-
+async def check_early_bong_reactions(bot, bong_message_id, bong_channel_id, guild_id, sleepytime):
     guild = bot.get_guild(guild_id)
     bong_channel = guild.get_channel(bong_channel_id)
 
@@ -322,12 +331,12 @@ async def check_early_bong_reactions(bot, bong_message_id, bong_channel_id, guil
                 _, user = await bot.wait_for(
                     "reaction_add",
                     check=lambda r, u: str(r.emoji) == bong_emoji and not u.bot and bong_message_id == r.message.id and preperiod == True,
-                    timeout=10,
+                    timeout=sleepytime,
                     )
                 await bong_message.delete()
                 await bong_channel.send(f"{user.mention} has clicked the bong EARLY. Shame them!")
                 return
-
+            
             except asyncio.TimeoutError:
                 return
 
