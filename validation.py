@@ -52,7 +52,6 @@ async def validate_admin_role_access(interaction, user: discord.Member):
 
 
 async def permissions_error(interaction, role):
-        
     embed = discord.Embed(
         title="Permissions Error",
         description="**You dont have the required role for this command.**\nIf you are a server administrator, check your configuration and try again.",
