@@ -20,9 +20,19 @@ bong_goal = 100
 
 async def bong(bot, time_keeper_role, guild_id, channel_id, current_ending):
     current_time = datetime.now().strftime("%H:%M")
+    current_time_stamp = int(time.time())
     preperiod_triggered = False
-    
     if current_time.endswith(current_ending) or debug_mode == True:
+        #double check that double/triple bongs are not happening when api craps out
+        last_bong_time = await database.get_last_bong_time(guild_id)
+        print(last_bong_time)
+        if last_bong_time is not None:
+            diff = current_time_stamp - last_bong_time
+            print(diff)
+            if diff < 3700:
+                print("Discord instablity has caused double bongs. cancelling task")
+                return
+ 
         blacklist = await database.get_server_blacklist(guild_id)
         print(f"Bong for guild: {guild_id}")
         
@@ -190,6 +200,7 @@ async def golden_bong(interaction, channel, member):
 
 #The main annouce_winner, slighty adapted to correctly pull data from the database
 async def announce_winner(guild_id, channel, member, reaction_time, goldenbong=None, special_channel=None):
+    bong_time = int(time.time())
 
     leaderboard = await database.get_server_data(guild_id)
     streak = await database.get_streak(guild_id)
@@ -245,7 +256,7 @@ async def announce_winner(guild_id, channel, member, reaction_time, goldenbong=N
         
         await database.streak(guild_id, streak)
 
-        await database.update_server_users(guild_id, leaderboard)
+        await database.update_server_users(guild_id, leaderboard, bong_time)
 
     else:
         # Check if there's a previous winner with the time_keeper_role_id
@@ -309,7 +320,7 @@ async def announce_winner(guild_id, channel, member, reaction_time, goldenbong=N
             time_keeper_role = discord.utils.get(member.guild.roles, id=time_keeper_role_id)
             await member.add_roles(time_keeper_role)
         
-        await database.update_server_users(guild_id, leaderboard)
+        await database.update_server_users(guild_id, leaderboard, bong_time)
 
 
 

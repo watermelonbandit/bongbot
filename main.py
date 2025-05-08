@@ -131,13 +131,48 @@ async def goldenbongleaderboard(interaction: discord.Interaction):
         await validation.permissions_error(interaction, permission_check[1])
 
 #Setup the bot 
-#bong.py/interface.py\
+#bong.py/interface.py
 @app_commands.checks.has_permissions(administrator=True)
 @bot.tree.command(name="setup", description="setup the bot for your server")
 async def show_setup_modal(interaction: discord.Interaction, golden_bong: bool = False):
     #interaction.response.send_message("# Welcome to BongBot setup\n## Make sure that developer mode is enabled.\nYou will need the following:\n**BongBot Time**")
     modal = Setup()
     await interaction.response.send_modal(modal)
+
+
+@app_commands.checks.has_permissions(administrator=True)
+@bot.tree.command(name="fastsetup", description="fast setup with no modal")
+async def fast_setup(interaction: discord.Interaction, bong_time: str, bong_channel: discord.TextChannel, admin_role: discord.Role,time_keeper_role: discord.Role, lowest_role: discord.Role, golden_bong: bool = False):
+    
+    await interaction.response.send_message("**Updating Server Config..........**", ephemeral=True)
+    
+    validate = await validation.setup_validation(golden_bong,lowest_role.id,time_keeper_role.id,bong_time,admin_role.id,bong_channel.id, interaction.guild, interaction.guild.id, interaction)
+    
+    if validate == 1:
+        await interaction.edit_original_response(
+            content="Response contains invalid characters. Please make sure that the Roles and Channels are IDs.",
+        )    
+        return
+    if validate == 2:
+        await interaction.edit_original_response(
+            content="The Bong Bot Time must be a number between 00-59. See https://bong.bot/setup.html for more info",
+        )
+        return
+    
+    if "verif-failed" in validate[1]:
+        hreadvalmessage = "Validation failed, the values provided for "
+        combined_reasons = ", ".join(validate[0])
+        final_message = hreadvalmessage + combined_reasons + " are incorrect, please check to make sure that the bot has access to these channels/roles. See https://bong.bot/setup.html for more info"
+        await interaction.edit_original_response(content=final_message)
+        return
+
+    if "golden_bong_verif_failed" in validate:
+        await interaction.edit_original_response(content="Hmm, looks like the role you provided for the Lowest Role entry does not have access to any channels. Please check your server hierarchy and try again")
+        return
+
+    if validate == "Passed":
+        await interaction.edit_original_response(content=f"**Server Configuration has been successfully validated.**\nYour server configuration has been updated.Thanks for using BongBot!\n**Your Bong Channel:** <#{str(bong_channel.id)}>\n**Your Time Keeper Role:** <@&{str(time_keeper_role.id)}>\n**Lowest Role:** <@&{str(lowest_role.id)}>\n**Bong Minute:** 00:{bong_time}\n**Your Admin Role:** <@&{str(admin_role.id)}>")
+
 
 #interactions - game (All User Access)
 
@@ -263,8 +298,10 @@ async def myusercommand(interaction: discord.Interaction) -> None:
     except Exception as e:
         print (e)
         
-#adminstration on my end
 
+
+
+#adminstration on my end
 @bot.tree.command(name="newseason", description="no touchies")
 async def newseason(interaction: discord.Interaction):
     try:

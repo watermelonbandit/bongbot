@@ -66,6 +66,10 @@ async def stop_all_tasks(interaction = None, mode = None):
         await asyncio.sleep(5)
         await start_game(context)
         await interaction.edit_original_response(content="BongBot is now in a ready state")
+        return
+    
+    await start_game(context)
+    
 
 async def stop_task_on_leave(guild):
     task_name_for_guild = f"guild_task_{guild.id}"
@@ -75,5 +79,13 @@ async def stop_task_on_leave(guild):
         bong_tasks[task_name_for_guild].cancel()
         del bong_tasks[task_name_for_guild]
              
-    
-
+async def restart_on_config_update(interaction,guild_id):
+    task_name_for_guild = f"guild_task_{guild_id}"
+    if task_name_for_guild in bong_tasks:
+        print(f"stopping task for guild {interaction.guild}")
+        bong_tasks[task_name_for_guild].cancel()
+        del bong_tasks[task_name_for_guild]
+        await reboot_guild(interaction, guild_id)
+    else:
+        print("error refreshing, or new guild. starting new task")
+        await reboot_guild(interaction, guild_id)

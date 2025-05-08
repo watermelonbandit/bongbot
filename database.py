@@ -46,11 +46,20 @@ async def server_setup(guild_id, bongbot_channelid, lowest_role_id, bongbot_gold
                 "guild_id": guild_id
             }
         }
+        
+
         await discord_server_database.insert_one(settings)
     
+    #dynamics= {
+    #        "_id": guild_id,
+    #        "dynamics": {
+    #            "dynamics.last_bong_time": None,
+    #       }
+    #    }
+        
+    #await discord_server_database.insert_one(dynamics, upsert=True)
+    
     print("database updated")
-
-
 
 
 async def dynamic_resource(guild_id, golden_bong_timestamp, sc_channel, member):
@@ -222,9 +231,27 @@ async def return_goldenbong_channelist(guild_id):
     else:
         return "Not here"
  
-async def update_server_users(guild_id, leaderboard):
+async def update_server_users(guild_id, leaderboard, last_bong_time):
     # Access the specific guild collection
     discord_server_database = bongbotdatabase[f'{guild_id}']
+    existing_dynamics = await discord_server_database.find_one({"_id": guild_id})
+
+    if existing_dynamics:
+        update_fields = {}
+        update_fields["dynamics.last_bong_time"] = last_bong_time
+
+        update_settings = {
+            "$set": update_fields
+        }
+        await discord_server_database.update_one({"_id": guild_id}, update_settings, upsert=True)
+    else:
+        bongtime  = {
+            "_id": guild_id,
+            "dynamics": {
+                "bong_time": last_bong_time
+            }
+        }
+        await discord_server_database.insert_one(bongtime)
 
     # Query to find the document where the specific member_id exists within user_bong_data
     
@@ -403,6 +430,16 @@ async def get_bong_time(guild_id):
 
     return bong_bot_time
 
+async def get_last_bong_time(guild_id):
+    discord_server_database = bongbotdatabase[f'{guild_id}']
+    document= await discord_server_database.find_one({}, {'_id': 0, 'dynamics.last_bong_time':1})
+    
+    if document:
+        bong_bot_last_time = document['dynamics']['last_bong_time']
+        return bong_bot_last_time
+    else:
+        return None
+
 async def get_server_ids():
 
 
@@ -497,6 +534,7 @@ async def global_reactiontime(user_id):
         reaction_time = None                
     
     return reaction_time
+
 
 
 
