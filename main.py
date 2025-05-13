@@ -141,7 +141,7 @@ async def show_setup_modal(interaction: discord.Interaction, golden_bong: bool =
 
 
 @app_commands.checks.has_permissions(administrator=True)
-@bot.tree.command(name="fastsetup", description="fast setup with no modal")
+@bot.tree.command(name="fastsetup", description="fast setup with no modal, https://bong.bot/setup for more")
 async def fast_setup(interaction: discord.Interaction, bong_time: str, bong_channel: discord.TextChannel, admin_role: discord.Role,time_keeper_role: discord.Role, lowest_role: discord.Role, golden_bong: bool = False):
     
     await interaction.response.send_message("**Updating Server Config..........**", ephemeral=True)
