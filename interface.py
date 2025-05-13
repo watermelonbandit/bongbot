@@ -152,11 +152,11 @@ class Setup(Modal):
 
 async def embed_footer_format(guild):
      
-    version = 4.14
+    version = 4.20
 
     timestamp_format_os = "#"
 
-    version_date = "10/2/2024"
+    version_date = "5/13/2025"
 
     timestamp = datetime.now()
 
