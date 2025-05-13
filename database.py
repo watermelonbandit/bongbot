@@ -434,7 +434,7 @@ async def get_last_bong_time(guild_id):
     discord_server_database = bongbotdatabase[f'{guild_id}']
     document= await discord_server_database.find_one({}, {'_id': 0, 'dynamics.last_bong_time':1})
     
-    if document:
+    if document and 'dynamics' in document and 'last_bong_time' in document['dynamics']:
         bong_bot_last_time = document['dynamics']['last_bong_time']
         return bong_bot_last_time
     else:
