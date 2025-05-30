@@ -28,7 +28,7 @@ async def bong(bot, time_keeper_role, guild_id, channel_id, current_ending):
         if last_bong_time is not None:
             diff = current_time_stamp - last_bong_time
             print(diff)
-            if diff < 3600:
+            if diff < 3660:
                 print("Discord instablity has caused double bongs. cancelling task")
                 return
  
