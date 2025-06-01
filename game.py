@@ -412,6 +412,8 @@ async def seasonal_bong_updater():
     elif month == 1 and day == 1:
         bong_emoji = "🎉"
         return
+    elif month == 6:
+        bong_emoji = "🏳️‍🌈"
     
     elif month == 7 and day == 4:
         bong_emoji = "🎇"
