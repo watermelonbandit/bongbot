@@ -7,7 +7,7 @@
     "python.analysis.extraPaths": [
         "",
         "/Users/nathanielnewson/.vscode/extensions/joedevivo.vscode-circuitpython-0.2.0-darwin-arm64/stubs",
-        "/Users/nathanielnewson/Library/Application Support/Code/User/globalStorage/joedevivo.vscode-circuitpython/bundle/20250529/adafruit-circuitpython-bundle-py-20250529/lib"
+        "/Users/nathanielnewson/Library/Application Support/Code/User/globalStorage/joedevivo.vscode-circuitpython/bundle/20250601/adafruit-circuitpython-bundle-py-20250601/lib"
     ],
     "circuitpython.board.version": null
 }
